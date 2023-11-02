@@ -28,6 +28,8 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
     var dispatchedModelSyncedEvents: [ModelName: AtomicValue<Bool>]
 
     let modelRegistration: AmplifyModelRegistration
+    
+    let migrationMap: DataStoreMigrationMap?
 
     /// The DataStore configuration
     var configuration: InternalDatastoreConfiguration
@@ -57,8 +59,10 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
 
     /// No-argument init that uses defaults for all providers
     public init(modelRegistration: AmplifyModelRegistration,
+                migrationMap: DataStoreMigrationMap?,
                 configuration dataStoreConfiguration: DataStoreConfiguration = .default) {
         self.modelRegistration = modelRegistration
+        self.migrationMap = migrationMap
         self.configuration = InternalDatastoreConfiguration(
             isSyncEnabled: false,
             validAPIPluginKey: "awsAPIPlugin",
@@ -73,6 +77,7 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
                 validAuthPluginKey:
                 modelRegistryVersion:
                 userDefault:
+                migratingEnabled:
         )
         self.dataStorePublisher = DataStorePublisher()
         self.dispatchedModelSyncedEvents = [:]
@@ -80,6 +85,7 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
 
     /// Internal initializer for testing
     init(modelRegistration: AmplifyModelRegistration,
+         migrationMap: DataStoreMigrationMap? = nil,
          configuration dataStoreConfiguration: DataStoreConfiguration = .default,
          storageEngineBehaviorFactory: StorageEngineBehaviorFactory? = nil,
          dataStorePublisher: ModelSubcriptionBehavior,
@@ -87,6 +93,7 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
          validAPIPluginKey: String,
          validAuthPluginKey: String) {
         self.modelRegistration = modelRegistration
+        self.migrationMap = migrationMap
         self.configuration = InternalDatastoreConfiguration(
             isSyncEnabled: false,
             validAPIPluginKey: validAPIPluginKey,
@@ -101,6 +108,7 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
                 validAuthPluginKey:
                 modelRegistryVersion:
                 userDefault:
+                migratingEnabled:
         )
         self.dataStorePublisher = dataStorePublisher
         self.dispatchedModelSyncedEvents = [:]
@@ -136,6 +144,10 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
             try resolveStorageEngine(dataStoreConfiguration: configuration.pluginConfiguration)
             try storageEngine.setUp(modelSchemas: ModelRegistry.modelSchemas)
             try storageEngine.applyModelMigrations(modelSchemas: ModelRegistry.modelSchemas)
+            
+            if let migrationMap {
+                try storageEngine.applyIntermediateMigrations(migrationMap: migrationMap)
+            }
 
             return .success(storageEngine)
         } catch {
@@ -176,7 +188,8 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
             configuration.validAPIPluginKey,
             configuration.validAuthPluginKey,
             modelRegistration.version,
-            UserDefaults.standard
+            UserDefaults.standard,
+            migrationMap != nil
         )
 
         setupStorageSink()
