@@ -21,7 +21,7 @@ class AWSDataStorePluginTests: XCTestCase {
         storageEngine.responders[.startSync] = StartSyncResponder { _ in
             startExpectation.fulfill()
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -44,7 +44,7 @@ class AWSDataStorePluginTests: XCTestCase {
         storageEngine.responders[.startSync] = StartSyncResponder { _ in
             startExpectation.fulfill()
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -68,7 +68,7 @@ class AWSDataStorePluginTests: XCTestCase {
         storageEngine.responders[.startSync] = StartSyncResponder { _ in
             startExpectation.fulfill()
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -106,7 +106,7 @@ class AWSDataStorePluginTests: XCTestCase {
             currCount = self.expect(startExpectation, currCount, 1)
         }
         
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -143,7 +143,7 @@ class AWSDataStorePluginTests: XCTestCase {
             currCount = self.expect(startExpectation, currCount, 2)
         }
         
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -179,7 +179,7 @@ class AWSDataStorePluginTests: XCTestCase {
             stopExpectation.fulfill()
         }
 
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -250,7 +250,7 @@ class AWSDataStorePluginTests: XCTestCase {
         storageEngine.responders[.clear] = ClearResponder { _ in
             clearExpectation.fulfill()
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -324,7 +324,7 @@ class AWSDataStorePluginTests: XCTestCase {
         }
 
         let dataStorePublisher = DataStorePublisher()
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let plugin = AWSDataStorePlugin(modelRegistration: TestModelRegistration(),
@@ -409,7 +409,7 @@ class AWSDataStorePluginTests: XCTestCase {
             count = self.expect(clearExpectation, count, 2)
         }
 
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -488,7 +488,7 @@ class AWSDataStorePluginTests: XCTestCase {
             stopExpectation.fulfill()
         }
 
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -561,7 +561,7 @@ class AWSDataStorePluginTests: XCTestCase {
         storageEngine.responders[.clear] = ClearResponder { _ in
             storageClearExpectation.fulfill()
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -586,7 +586,7 @@ class AWSDataStorePluginTests: XCTestCase {
         storageEngine.responders[.stopSync] = StopSyncResponder { _ in
             stopExpectation.fulfill()
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()
@@ -616,7 +616,7 @@ class AWSDataStorePluginTests: XCTestCase {
         storageEngine.responders[.stopSync] = StopSyncResponder { _ in
             count = self.expect(stopExpectation, count, 1)
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()

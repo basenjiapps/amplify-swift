@@ -64,7 +64,7 @@ final class SQLiteStorageEngineAdapter: StorageEngineAdapter {
                   dbFilePath: URL? = nil,
                   userDefaults: UserDefaults = UserDefaults.standard,
                   version: String = "version",
-                  migratingEnabled: Bool) throws {
+                  migratingEnabled: Bool = false) throws {
         self.version = version
         self.userDefaults = userDefaults
         self.migratingEnabled = migratingEnabled

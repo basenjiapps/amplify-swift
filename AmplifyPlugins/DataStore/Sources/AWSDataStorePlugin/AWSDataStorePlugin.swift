@@ -59,7 +59,7 @@ final public class AWSDataStorePlugin: DataStoreCategoryPlugin {
 
     /// No-argument init that uses defaults for all providers
     public init(modelRegistration: AmplifyModelRegistration,
-                migrationMap: DataStoreMigrationMap?,
+                migrationMap: DataStoreMigrationMap? = nil,
                 configuration dataStoreConfiguration: DataStoreConfiguration = .default) {
         self.modelRegistration = modelRegistration
         self.migrationMap = migrationMap

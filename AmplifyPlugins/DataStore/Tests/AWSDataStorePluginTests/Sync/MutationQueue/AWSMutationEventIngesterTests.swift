@@ -47,7 +47,7 @@ class AWSMutationEventIngesterTests: XCTestCase {
                                               validAPIPluginKey: validAPIPluginKey,
                                               validAuthPluginKey: validAuthPluginKey)
 
-            let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+            let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
                 return storageEngine
             }
             let publisher = DataStorePublisher()

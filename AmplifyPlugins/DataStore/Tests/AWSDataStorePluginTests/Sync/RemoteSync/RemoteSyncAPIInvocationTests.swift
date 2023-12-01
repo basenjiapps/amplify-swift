@@ -51,7 +51,7 @@ class RemoteSyncAPIInvocationTests: XCTestCase {
             XCTFail(String(describing: error))
             return
         }
-        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _  throws in
+        let storageEngineBehaviorFactory: StorageEngineBehaviorFactory = {_, _, _, _, _, _, _  throws in
             return storageEngine
         }
         let dataStorePublisher = DataStorePublisher()

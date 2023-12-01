@@ -13,6 +13,10 @@ import Combine
 @testable import AWSDataStorePlugin
 
 class MockSQLiteStorageEngineAdapter: StorageEngineAdapter {
+    func applyIntermediateMigrations(migrationMap: DataStoreMigrationMap) throws {
+        
+    }
+    
 
     static var maxNumberOfPredicates: Int = 950
 
@@ -280,9 +284,13 @@ class MockSQLiteStorageEngineAdapter: StorageEngineAdapter {
 }
 
 class MockStorageEngineBehavior: StorageEngineBehavior {
+    func applyIntermediateMigrations(migrationMap: DataStoreMigrationMap) throws {
+        
+    }
+    
 
     static let mockStorageEngineBehaviorFactory =
-        MockStorageEngineBehavior.init(isSyncEnabled:dataStoreConfiguration:validAPIPluginKey:validAuthPluginKey:modelRegistryVersion:userDefault:)
+        MockStorageEngineBehavior.init(isSyncEnabled:dataStoreConfiguration:validAPIPluginKey:validAuthPluginKey:modelRegistryVersion:userDefault:migratingEnabled:)
     var responders = [ResponderKeys: Any]()
     var syncing = false
 
@@ -294,7 +302,8 @@ class MockStorageEngineBehavior: StorageEngineBehavior {
          validAPIPluginKey: String = "awsAPIPlugin",
          validAuthPluginKey: String = "awsCognitoAuthPlugin",
          modelRegistryVersion: String,
-         userDefault: UserDefaults = UserDefaults.standard) throws {
+         userDefault: UserDefaults = UserDefaults.standard,
+         migratingEnabled: Bool) throws {
     }
 
     func setupPublisher() {
