@@ -50,6 +50,9 @@ class RemoteSyncEngine: RemoteSyncEngineBehavior {
     // Assigned at `setUpCloudSubscriptions`
     var reconciliationQueue: IncomingEventReconciliationQueue?
     var reconciliationQueueFactory: IncomingEventReconciliationQueueFactory
+    
+    // Startup sync queue
+    var startupSyncQueue: AWSStartupSyncQueue?
 
     let stateMachine: StateMachine<State, Action>
     private var stateMachineSink: AnyCancellable?
@@ -167,6 +170,9 @@ class RemoteSyncEngine: RemoteSyncEngineBehavior {
             clearStateOutgoingMutations(storageAdapter: storageAdapter)
         case .initializingSubscriptions(let api, let storageAdapter):
             await initializeSubscriptions(api: api, storageAdapter: storageAdapter)
+        case .startupSingleSync:
+            // TODO: implement startup single sync
+            break
         case .performingInitialSync:
             performInitialSync()
         case .activatingCloudSubscriptions:
@@ -282,7 +288,9 @@ class RemoteSyncEngine: RemoteSyncEngineBehavior {
     private func initializeSubscriptions(api: APICategoryGraphQLBehaviorExtended,
                                          storageAdapter: StorageEngineAdapter) async {
         log.debug("[InitializeSubscription] \(#function)")
-        let syncableModelSchemas = ModelRegistry.modelSchemas.filter { $0.isSyncable }
+        /// to prevent sync startup only syncable models
+        let startupSyncModelNames = dataStoreConfiguration.startupSyncOnly.map { $0.name }
+        let syncableModelSchemas = ModelRegistry.modelSchemas.filter { $0.isSyncable && !startupSyncModelNames.contains($0.name) }
         reconciliationQueue = await reconciliationQueueFactory(syncableModelSchemas,
                                                                api,
                                                                storageAdapter,
@@ -296,6 +304,23 @@ class RemoteSyncEngine: RemoteSyncEngineBehavior {
                 receiveCompletion: { [weak self] in self?.onReceiveCompletion(receiveCompletion: $0) },
                 receiveValue: { [weak self] in self?.onReceive(receiveValue: $0) }
             )
+        
+        await performStartupSingleSync(api: api, storageAdapter: storageAdapter)
+    }
+    
+    private func performStartupSingleSync(api: APICategoryGraphQLBehaviorExtended, 
+                                          storageAdapter: StorageEngineAdapter) async {
+        log.debug("[PerformStartupSingleSync] \(#function)")
+        /// to  sync startup only syncable models
+        let startupSyncModelNames = dataStoreConfiguration.startupSyncOnly.map { $0.name }
+        let syncableModelSchemas = ModelRegistry.modelSchemas.filter { $0.isSyncable && startupSyncModelNames.contains($0.name) }
+        
+        startupSyncQueue = await AWSStartupSyncQueue(
+            modelSchemas: syncableModelSchemas,
+            api: api,
+            storageAdapter: storageAdapter,
+            syncExpressions: dataStoreConfiguration.syncExpressions,
+            authModeStrategy: authModeStrategy)
     }
 
     private func performInitialSync() {

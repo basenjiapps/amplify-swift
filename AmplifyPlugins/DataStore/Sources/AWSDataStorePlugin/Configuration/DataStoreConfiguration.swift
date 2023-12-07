@@ -69,6 +69,9 @@ public struct DataStoreConfiguration {
 
     /// Authorization mode strategy
     public var authModeStrategyType: AuthModeStrategyType
+    
+    /// Startup sync only schemes
+    public var startupSyncOnly: [ModelSchema]
 
     init(errorHandler: @escaping DataStoreErrorHandler,
          conflictHandler: @escaping DataStoreConflictHandler,
@@ -76,6 +79,7 @@ public struct DataStoreConfiguration {
          syncMaxRecords: UInt,
          syncPageSize: UInt,
          syncExpressions: [DataStoreSyncExpression],
+         startupSyncOnly: [ModelSchema],
          authModeStrategy: AuthModeStrategyType = .default) {
         self.errorHandler = errorHandler
         self.conflictHandler = conflictHandler
@@ -84,6 +88,7 @@ public struct DataStoreConfiguration {
         self.syncPageSize = syncPageSize
         self.syncExpressions = syncExpressions
         self.authModeStrategyType = authModeStrategy
+        self.startupSyncOnly = startupSyncOnly
     }
 
 }
