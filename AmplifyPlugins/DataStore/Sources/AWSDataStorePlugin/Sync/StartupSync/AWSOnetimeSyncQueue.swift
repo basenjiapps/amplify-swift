@@ -10,26 +10,17 @@ import AWSPluginsCore
 import Combine
 import Foundation
 
-class AWSOnetimeSyncQueue {
-//    private let incomingSubscriptionEvents: IncomingSubscriptionEventPublisher
+final class AWSOnetimeSyncQueue {
     private let incomingUpdatesEvents: AWSAsyncUpdatesEventPublisher
 
     private let modelSchema: ModelSchema
     weak var storageAdapter: StorageEngineAdapter?
     private let modelPredicate: QueryPredicate?
 
-    /// A buffer queue for incoming subsscription events, waiting for this ReconciliationQueue to be `start`ed. Once
-    /// the ReconciliationQueue is started, each event in the `incomingRemoveEventQueue` will be submitted to the
-    /// `reconcileAndSaveQueue`.
-//    private let incomingSubscriptionEventQueue: OperationQueue
-
     /// Applies incoming mutation or subscription events serially to local data store for this model type. This queue
     /// is always active.
     private let reconcileAndSaveQueue: ReconcileAndSaveOperationQueue
     var reconcileAndLocalSaveOperationSink: AnyCancellable?
-
-//    private var incomingEventsSink: AnyCancellable?
-//    private var reconcileAndLocalSaveOperationSinks: AtomicValue<Set<AnyCancellable?>>
 
     private let modelReconciliationQueueSubject: CurrentValueSubject<ModelReconciliationQueueEvent, DataStoreError>
     var publisher: AnyPublisher<ModelReconciliationQueueEvent, DataStoreError> {
@@ -60,23 +51,22 @@ class AWSOnetimeSyncQueue {
             authModeStrategy: authModeStrategy)
         
         self.incomingUpdatesEvents = resolvedIncomingUpdatesEvents
+        
+        resolvedIncomingUpdatesEvents.completionHandler = { [weak self] in
+            self?.enqueue($0)
+        }
     }
     
     func enqueue(_ result: AWSAsyncUpdatesEventPublisher.UpdatesResult) {//_ remoteModels: [MutationSync<AnyModel>]) {
-//        guard !remoteModels.isEmpty else {
-//            log.debug("\(#function) skipping reconciliation, no models to enqueue.")
-//            return
-//        }
-        guard let success = try? result.get().get() else {
+        guard let success = try? result.get().get(), let items: [MutationSyncResult] = success.items else {
             log.debug("\(#function) skipping reconciliation, no models to enqueue.")
             return
         }
-        let remoteModels = success//[success]
+        print("Response items \(items)")
 
         let reconcileOp = ReconcileAndLocalSaveOperation(modelSchema: modelSchema,
-                                                         remoteModels: [],//remoteModels,
+                                                         remoteModels: items,
                                                          storageAdapter: storageAdapter)
-//        var reconcileAndLocalSaveOperationSink: AnyCancellable?
         reconcileAndLocalSaveOperationSink = reconcileOp
             .publisher
             .sink(receiveCompletion: { [weak self] completion in

@@ -11,13 +11,12 @@ import Combine
 import Foundation
 
 class AWSAsyncUpdatesEventPublisher: AmplifyCancellable {
-    typealias Payload = UpdatesList<MutationSyncResult?>
+    typealias Payload = UpdatesList<MutationSyncResult>
     typealias Operation = GraphQLOperation<Payload>
     typealias UpdatesResult = Result<Operation.Success, Operation.Failure>
     typealias CompletionHandler = (UpdatesResult)->()
     
     private var updateOperation: RetryableGraphQLOperation<Payload>?
-    private var updateValueListener: GraphQLOperation<Payload>.ResultListener?
     
     private let awsAuthService: AWSAuthServiceBehavior
 
@@ -36,10 +35,8 @@ class AWSAsyncUpdatesEventPublisher: AmplifyCancellable {
         self.awsAuthService = awsAuthService ?? AWSAuthService()
         
         // update operation
-        let updateValueListener = updateValueListenerHandler(event:)
         let updateAuthTypeProvider = await authModeStrategy.authTypesFor(schema: modelSchema,
                                                                      operation: .create)
-        self.updateValueListener = updateValueListener
         updateOperation = RetryableGraphQLOperation<Payload>(
             requestFactory: AWSAsyncUpdatesEventPublisher.apiRequestFactoryFor(
                 for: modelSchema,
@@ -54,16 +51,6 @@ class AWSAsyncUpdatesEventPublisher: AmplifyCancellable {
                 
         }
         updateOperation?.main()
-    }
-    
-    func updateValueListenerHandler(event: GraphQLOperation<Payload>.OperationResult) {
-        log.verbose("updateValueListener: \(event)")
-//        log.verbose("updateValueListener: \(event)")
-//        let updateConnectionOp = CancelAwareBlockOperation {
-//            self.updateConnected = self.isConnectionStatusConnected(for: event)
-//            self.sendConnectionEventIfConnected(event: event)
-//        }
-//        genericValueListenerHandler(event: event, cancelAwareBlock: updateConnectionOp)
     }
     
     func resultListener(_ result: UpdatesResult) {
@@ -81,7 +68,7 @@ class AWSAsyncUpdatesEventPublisher: AmplifyCancellable {
         
         return GraphQLRequest<Payload>.startupQuery(
             modelSchema: modelSchema,
-            where: nil,//modelPredicate,
+            where: modelPredicate,
             authType: authType,
             limit: 1000)
     }

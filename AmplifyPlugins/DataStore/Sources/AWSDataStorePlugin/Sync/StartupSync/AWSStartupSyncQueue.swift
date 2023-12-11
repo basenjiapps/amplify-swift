@@ -65,14 +65,6 @@ final class AWSStartupSyncQueue: IncomingEventReconciliationQueue {
                 modelPredicate: modelPredicate,
                 auth: auth,
                 authModeStrategy: authModeStrategy)
-//            let queue = await self.modelReconciliationQueueFactory(modelSchema,
-//                                                             storageAdapter,
-//                                                             api,
-//                                                             reconcileAndSaveQueue,
-//                                                             modelPredicate,
-//                                                             auth,
-//                                                             authModeStrategy,
-//                                                             nil)
 //            
             reconciliationQueues.with { reconciliationQueues in
                 reconciliationQueues[modelName] = queue

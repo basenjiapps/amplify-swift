@@ -80,15 +80,14 @@ extension GraphQLRequest: ModelSyncGraphQLRequestFactory {
                                                    options: requestOptions)
     }
     
-    public static func startupQuery(modelSchema: ModelSchema,
+    public static func startupQuery<ModelType>(modelSchema: ModelSchema,
                                     where predicate: QueryPredicate? = nil,
                                     authType: AWSAuthorizationType? = nil,
-                                    limit: Int? = nil) -> GraphQLRequest<[MutationSyncResult?]> {
+                                    limit: Int? = nil) -> GraphQLRequest<ModelType> {
         var documentBuilder = ModelBasedGraphQLDocumentBuilder(modelName: modelSchema.name,
                                                                operationType: .query,
                                                                primaryKeysOnly: false)
         documentBuilder.add(decorator: DirectiveNameDecorator(type: .list))
-//        if let predicate = optimizePredicate(predicate) {
         if let predicate {
             documentBuilder.add(decorator: FilterDecorator(filter: predicate.graphQLFilter(for: modelSchema)))
         }
@@ -98,17 +97,12 @@ extension GraphQLRequest: ModelSyncGraphQLRequestFactory {
         let document = documentBuilder.build()
 
         let awsPluginOptions = AWSPluginOptions(authType: authType, modelName: modelSchema.name)
-        let requestOptions = GraphQLRequest<[MutationSyncResult?]>.Options(pluginOptions: awsPluginOptions)
-        return GraphQLRequest<[MutationSyncResult?]>(document: document.stringValue,
+        let requestOptions = GraphQLRequest<ModelType>.Options(pluginOptions: awsPluginOptions)
+        return GraphQLRequest<ModelType>(document: document.stringValue,
                                                    variables: document.variables,
-                                                   responseType: [MutationSyncResult?].self,
+                                                   responseType: ModelType.self,
                                                    decodePath: document.name,
                                                    options: requestOptions)
-//        return GraphQLRequest<MutationSyncResult?>(document: document.stringValue,
-//                                       variables: document.variables,
-//                                       responseType: MutationSyncResult?.self,
-//                                       decodePath: document.name,
-//                                       options: requestOptions)
     }
 
     public static func createMutation(of model: Model,

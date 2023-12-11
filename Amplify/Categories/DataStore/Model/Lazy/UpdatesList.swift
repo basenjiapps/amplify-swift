@@ -5,7 +5,6 @@
 //  Created by Alex Lednik on 06/12/2023.
 //
 
-import Amplify
 import Foundation
 
 private enum ResponseKey {
@@ -13,23 +12,24 @@ private enum ResponseKey {
     static let items = "items"
 }
 
-class UpdatesList<ModelType>: Codable, ModelListMarker {
+public class UpdatesList<ModelType: Decodable>: Codable, ModelListMarker {
     private typealias ResponseDict = [String: JSONValue]
     
-    var items: [ModelType]?
-    var nextToken: String?
-    
     enum CodingKeys: String, CodingKey {
-        case data
+        case graphQLData
     }
     
-    required init(from decoder: Decoder) throws {
+    public private(set) var items: [ModelType]?
+    public private(set) var nextToken: String?
+    
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         let dynamicKey = container.allKeys.first { _ in true }
         
         let nestedContainer = try container.nestedContainer(keyedBy: DynamicCodingKey.self, forKey: dynamicKey!)
         print(nestedContainer.allKeys.description)
+        items = try? nestedContainer.decode([ModelType].self, forKey: DynamicCodingKey(stringValue: "items"))
 //        data = try nestedContainer.decode(TestResultsData.self, forKey: DynamicCodingKey(stringValue: "listAmplifyTestResults")!)
         
 //        let json = try JSONValue(from: decoder)
@@ -50,7 +50,7 @@ class UpdatesList<ModelType>: Codable, ModelListMarker {
     }
 }
 
-struct DynamicCodingKey: CodingKey {
+fileprivate struct DynamicCodingKey: CodingKey {
     var stringValue: String
 
     init(stringValue: String) {
