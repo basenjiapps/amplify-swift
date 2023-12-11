@@ -219,6 +219,28 @@ final class AWSModelReconciliationQueue: ModelReconciliationQueue {
             modelReconciliationQueueSubject.send(completion: .failure(dataStoreError))
         }
     }
+    
+    static func noSubscriptions(
+        modelSchema: ModelSchema,
+        storageAdapter: StorageEngineAdapter?,
+        api: APICategoryGraphQLBehaviorExtended,
+        reconcileAndSaveQueue: ReconcileAndSaveOperationQueue,
+        modelPredicate: QueryPredicate?,
+        auth: AuthCategoryBehavior?,
+        authModeStrategy: AuthModeStrategy,
+        incomingSubscriptionEvents: IncomingSubscriptionEventPublisher? = nil
+    ) async -> AWSModelReconciliationQueue {
+        return await AWSModelReconciliationQueue(
+            modelSchema: modelSchema,
+            storageAdapter: storageAdapter,
+            api: api,
+            reconcileAndSaveQueue: reconcileAndSaveQueue,
+            modelPredicate: modelPredicate,
+            auth: auth,
+            authModeStrategy: authModeStrategy,
+            incomingSubscriptionEvents: NoIncomingSubscriptionEventPublisher()
+        )
+    }
 }
 
 extension AWSModelReconciliationQueue: DefaultLogger {

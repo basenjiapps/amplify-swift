@@ -69,6 +69,8 @@ public struct DataStoreConfiguration {
 
     /// Authorization mode strategy
     public var authModeStrategyType: AuthModeStrategyType
+    
+    public let subscriptionsEnabled: Bool
 
     init(errorHandler: @escaping DataStoreErrorHandler,
          conflictHandler: @escaping DataStoreConflictHandler,
@@ -76,7 +78,8 @@ public struct DataStoreConfiguration {
          syncMaxRecords: UInt,
          syncPageSize: UInt,
          syncExpressions: [DataStoreSyncExpression],
-         authModeStrategy: AuthModeStrategyType = .default) {
+         authModeStrategy: AuthModeStrategyType = .default,
+         subscriptionsEnabled: Bool) {
         self.errorHandler = errorHandler
         self.conflictHandler = conflictHandler
         self.syncInterval = syncInterval
@@ -84,6 +87,7 @@ public struct DataStoreConfiguration {
         self.syncPageSize = syncPageSize
         self.syncExpressions = syncExpressions
         self.authModeStrategyType = authModeStrategy
+        self.subscriptionsEnabled = subscriptionsEnabled
     }
 
 }
