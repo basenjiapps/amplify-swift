@@ -282,14 +282,21 @@ class RemoteSyncEngine: RemoteSyncEngineBehavior {
     private func initializeSubscriptions(api: APICategoryGraphQLBehaviorExtended,
                                          storageAdapter: StorageEngineAdapter) async {
         log.debug("[InitializeSubscription] \(#function)")
+        
         let syncableModelSchemas = ModelRegistry.modelSchemas.filter { $0.isSyncable }
+        
+        let modelReconciliationQueueFactory: ModelReconciliationQueueFactory? = dataStoreConfiguration.subscriptionsEnabled
+            ? nil
+            : AWSModelReconciliationQueue.noSubscriptions
+        
         reconciliationQueue = await reconciliationQueueFactory(syncableModelSchemas,
                                                                api,
                                                                storageAdapter,
                                                                dataStoreConfiguration.syncExpressions,
                                                                auth,
                                                                authModeStrategy,
-                                                               nil)
+                                                               modelReconciliationQueueFactory)
+        
         reconciliationQueueSink = reconciliationQueue?
             .publisher
             .sink(
