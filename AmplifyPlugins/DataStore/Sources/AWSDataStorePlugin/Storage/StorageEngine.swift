@@ -16,7 +16,8 @@ typealias StorageEngineBehaviorFactory =
     String,
     String,
     String,
-    UserDefaults) throws -> StorageEngineBehavior
+    UserDefaults,
+    Bool) throws -> StorageEngineBehavior
 
 // swiftlint:disable type_body_length
 final class StorageEngine: StorageEngineBehavior {
@@ -96,12 +97,17 @@ final class StorageEngine: StorageEngineBehavior {
                      validAPIPluginKey: String = "awsAPIPlugin",
                      validAuthPluginKey: String = "awsCognitoAuthPlugin",
                      modelRegistryVersion: String,
-                     userDefault: UserDefaults = UserDefaults.standard) throws {
+                     userDefault: UserDefaults = UserDefaults.standard,
+                     migratingEnabled: Bool) throws {
 
         let key = kCFBundleNameKey as String
         let databaseName = Bundle.main.object(forInfoDictionaryKey: key) as? String ?? "app"
 
-        let storageAdapter = try SQLiteStorageEngineAdapter(version: modelRegistryVersion, databaseName: databaseName)
+        let storageAdapter = try SQLiteStorageEngineAdapter(
+            version: modelRegistryVersion,
+            databaseName: databaseName,
+            migratingEnabled: migratingEnabled
+        )
 
         try storageAdapter.setUp(modelSchemas: StorageEngine.systemModelSchemas)
 
@@ -178,6 +184,10 @@ final class StorageEngine: StorageEngineBehavior {
     func applyModelMigrations(modelSchemas: [ModelSchema]) throws {
         try storageAdapter.applyModelMigrations(modelSchemas: modelSchemas)
     }
+    
+    func applyIntermediateMigrations(migrationMap: DataStoreMigrationMap) throws {
+        try storageAdapter.applyIntermediateMigrations(migrationMap: migrationMap)
+    }
 
     public func save<M: Model>(_ model: M,
                                modelSchema: ModelSchema,
@@ -215,7 +225,8 @@ final class StorageEngine: StorageEngineBehavior {
                                                       modelSchema: modelSchema,
                                                       condition: condition,
                                                       eagerLoad: eagerLoad)
-                guard modelSchema.isSyncable else {
+                
+                guard modelSchema.isSyncable && model.isSyncable else {
                     completion(result)
                     return
                 }
