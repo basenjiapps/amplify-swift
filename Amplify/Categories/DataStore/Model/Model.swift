@@ -36,6 +36,8 @@ public protocol Model: Codable {
 
     /// Convenience property to access the serialized value of a model identifier
     var identifier: String { get }
+    
+    var isSyncable: Bool { get }
 }
 
 extension Model {
@@ -78,4 +80,8 @@ extension Model {
     /// The `rootPath` is set to `nil` by default. Specific models should override this
     /// behavior and provide the proper path reference when available.
     public static var rootPath: PropertyContainerPath? { nil }
+    
+    public var isSyncable: Bool {
+        true
+    }
 }
