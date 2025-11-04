@@ -14,6 +14,9 @@ import SQLite
 /// [SQLite](https://sqlite.org) `StorageEngineAdapter` implementation. This class provides
 /// an integration layer between the AppSyncLocal `StorageEngine` and SQLite for local storage.
 final class SQLiteStorageEngineAdapter: StorageEngineAdapter {
+    private let version: String
+    private let userDefaults: UserDefaults
+    private let migratingEnabled: Bool
     var connection: Connection?
     var dbFilePath: URL?
     static let dbVersionKey = "com.amazonaws.DataStore.dbVersion"
@@ -30,10 +33,14 @@ final class SQLiteStorageEngineAdapter: StorageEngineAdapter {
     convenience init(
         version: String,
         databaseName: String = "database",
-        userDefaults: UserDefaults = UserDefaults.standard
+        userDefaults: UserDefaults = UserDefaults.standard,
+        migratingEnabled: Bool
     ) throws {
         var dbFilePath = SQLiteStorageEngineAdapter.getDbFilePath(databaseName: databaseName)
-        _ = try SQLiteStorageEngineAdapter.clearIfNewVersion(version: version, dbFilePath: dbFilePath)
+        
+        if !migratingEnabled {
+            _ = try SQLiteStorageEngineAdapter.clearIfNewVersion(version: version, dbFilePath: dbFilePath)
+        }
 
         let path = dbFilePath.absoluteString
 
@@ -52,7 +59,8 @@ final class SQLiteStorageEngineAdapter: StorageEngineAdapter {
             connection: connection,
             dbFilePath: dbFilePath,
             userDefaults: userDefaults,
-            version: version
+            version: version,
+            migratingEnabled: migratingEnabled
         )
 
     }
@@ -61,13 +69,20 @@ final class SQLiteStorageEngineAdapter: StorageEngineAdapter {
         connection: Connection,
         dbFilePath: URL? = nil,
         userDefaults: UserDefaults = UserDefaults.standard,
-        version: String = "version"
+        version: String = "version",
+        migratingEnabled: Bool
     ) throws {
+        self.version = version
+        self.userDefaults = userDefaults
+        self.migratingEnabled = migratingEnabled
         self.connection = connection
         self.dbFilePath = dbFilePath
         try SQLiteStorageEngineAdapter.initializeDatabase(connection: connection)
         log.verbose("Initialized \(connection)")
-        userDefaults.set(version, forKey: SQLiteStorageEngineAdapter.dbVersionKey)
+        
+        if !migratingEnabled {
+            userDefaults.set(version, forKey: SQLiteStorageEngineAdapter.dbVersionKey)
+        }
     }
 
     static func initializeDatabase(connection: Connection) throws {
@@ -137,6 +152,25 @@ final class SQLiteStorageEngineAdapter: StorageEngineAdapter {
             try modelMigrations.apply()
         } catch {
             throw DataStoreError.invalidOperation(causedBy: error)
+        }
+    }
+    
+    func applyIntermediateMigrations(migrationMap: DataStoreMigrationMap) throws {
+        guard migratingEnabled else { return }
+        
+        guard let previousVersion = userDefaults.string(forKey: SQLiteStorageEngineAdapter.dbVersionKey) else {
+            userDefaults.set(version, forKey: SQLiteStorageEngineAdapter.dbVersionKey)
+            return
+        }
+        
+        guard previousVersion != version else { return }
+        
+        let applyingMigrations = migrationMap.migrations(fromVersion: previousVersion, toVersion: version)
+        
+        for migration in applyingMigrations {
+            try migration.apply(with: self)
+            
+            userDefaults.set(migration.toVersion, forKey: SQLiteStorageEngineAdapter.dbVersionKey)
         }
     }
 

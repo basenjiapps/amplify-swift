@@ -14,6 +14,8 @@ protocol ModelStorageBehavior {
 
     /// Apply any data migration logic for the given schemas in the underlying data store.
     func applyModelMigrations(modelSchemas: [ModelSchema]) throws
+    
+    func applyIntermediateMigrations(migrationMap: DataStoreMigrationMap) throws
 
     func save<M: Model>(
         _ model: M,
