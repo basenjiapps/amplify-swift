@@ -74,7 +74,8 @@ public extension DataStoreConfiguration {
         syncMaxRecords: UInt = DataStoreConfiguration.defaultSyncMaxRecords,
         syncPageSize: UInt = DataStoreConfiguration.defaultSyncPageSize,
         syncExpressions: [DataStoreSyncExpression] = [],
-        authModeStrategy: AuthModeStrategyType = .default
+        authModeStrategy: AuthModeStrategyType = .default,
+        subscriptionsEnabled: Bool = true
     ) -> DataStoreConfiguration {
         return DataStoreConfiguration(
             errorHandler: errorHandler,
@@ -83,7 +84,8 @@ public extension DataStoreConfiguration {
             syncMaxRecords: syncMaxRecords,
             syncPageSize: syncPageSize,
             syncExpressions: syncExpressions,
-            authModeStrategy: authModeStrategy
+            authModeStrategy: authModeStrategy,
+            subscriptionsEnabled: subscriptionsEnabled
         )
     }
     #endif

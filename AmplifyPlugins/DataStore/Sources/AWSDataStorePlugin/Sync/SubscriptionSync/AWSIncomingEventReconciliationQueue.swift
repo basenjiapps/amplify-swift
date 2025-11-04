@@ -105,7 +105,7 @@ final class AWSIncomingEventReconciliationQueue: IncomingEventReconciliationQueu
                 modelPredicate,
                 auth,
                 authModeStrategy,
-                subscriptionsDisabled ? OperationDisabledIncomingSubscriptionEventPublisher() : nil
+                subscriptionsDisabled ? NoIncomingSubscriptionEventPublisher() : nil
             )
 
             reconciliationQueues.with { reconciliationQueues in

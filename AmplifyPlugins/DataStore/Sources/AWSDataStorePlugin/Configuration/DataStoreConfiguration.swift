@@ -100,7 +100,8 @@ public struct DataStoreConfiguration {
         syncMaxRecords: UInt,
         syncPageSize: UInt,
         syncExpressions: [DataStoreSyncExpression],
-        authModeStrategy: AuthModeStrategyType = .default
+        authModeStrategy: AuthModeStrategyType = .default,
+        subscriptionsEnabled: Bool
     ) {
         self.errorHandler = errorHandler
         self.conflictHandler = conflictHandler
@@ -109,7 +110,7 @@ public struct DataStoreConfiguration {
         self.syncPageSize = syncPageSize
         self.syncExpressions = syncExpressions
         self.authModeStrategyType = authModeStrategy
-        self.disableSubscriptions = { false }
+        self.disableSubscriptions = { !subscriptionsEnabled }
     }
     #endif
 }

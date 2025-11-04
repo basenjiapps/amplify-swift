@@ -237,7 +237,7 @@ final class StorageEngine: StorageEngineBehavior {
                     condition: condition,
                     eagerLoad: eagerLoad
                 )
-                guard modelSchema.isSyncable else {
+                guard modelSchema.isSyncable && model.isSyncable else {
                     completion(result)
                     return
                 }
